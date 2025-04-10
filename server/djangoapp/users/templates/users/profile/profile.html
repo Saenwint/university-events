@@ -1,0 +1,32 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<div class="profile-card card">
+    <div class="card-header bg-primary text-white">
+        <h2 class="mb-0">Профиль пользователя</h2>
+    </div>
+    
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Имя:</strong> {{ user.first_name }}</p>
+                <p><strong>Фамилия:</strong> {{ user.last_name }}</p>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">Баланс</h5>
+                    <p class="mb-0">{{ user.balance }} ЛЭТИ-коинов</p>
+                </div>
+                <p><small class="text-muted">Дата регистрации: {{ user.created_at|date:"d.m.Y" }}</small></p>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2">
+            <a href="{% url 'logout' %}" class="btn btn-outline-danger">Выйти</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
