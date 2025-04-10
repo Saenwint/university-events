@@ -1,0 +1,62 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-8">
+            <img src="{{ event.image.url }}" class="img-fluid rounded mb-4" alt="{{ event.title }}">
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1>{{ event.title }}</h1>
+                <span class="badge" style="background: '{{ event.get_significance_color }}';">
+                    {{ event.get_significance_level_display }}
+                </span>
+            </div>
+            
+            <div class="mb-4">
+                <p>{{ event.full_description }}</p>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Информация о мероприятии</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong><i class="bi bi-calendar-event"></i> Дата:</strong>
+                            {{ event.date|date:"d M Y H:i" }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong><i class="bi bi-geo-alt"></i> Место:</strong>
+                            {{ event.location }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong><i class="bi bi-people"></i> Для кого:</strong>
+                            {{ event.target_audience }}
+                        </li>
+                        {% if event.coins_reward > 0 %}
+                        <li class="list-group-item">
+                            <strong><i class="bi bi-coin"></i> Награда:</strong>
+                            {{ event.coins_reward }} ЛЭТИ-коинов
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        {% if user.is_authenticated %}
+                            <button class="btn btn-primary">Зарегистрироваться</button>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={% url 'event_detail' event.id %}" class="btn btn-primary">
+                                Войдите, чтобы зарегистрироваться
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
