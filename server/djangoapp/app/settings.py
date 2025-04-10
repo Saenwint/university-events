@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import ast
 
 from pathlib import Path
 from dotenv import load_dotenv
@@ -31,7 +32,6 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -55,8 +55,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'app.admin_access_middleware.AdminAccessMiddleware',
 ]
 
+ADMIN_LIST = ast.literal_eval(os.getenv('ADMIN_LIST', '[]'))
 ROOT_URLCONF = 'app.urls'
 
 TEMPLATES = [
