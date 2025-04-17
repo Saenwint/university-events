@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .ticket {
+            border: 2px solid #0061ff;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            color: #0061ff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <h2 class="header">Вы успешно зарегистрировались на мероприятие</h2>
+        
+        <h3>{{ event.title }}</h3>
+        
+        <div class="info-item">
+            <strong>Дата и время:</strong> {{ event.date|date:"d E Y H:i" }}
+        </div>
+        
+        <div class="info-item">
+            <strong>Место проведения:</strong> {{ event.location }}
+        </div>
+        
+        <div class="info-item">
+            <strong>Описание:</strong> {{ event.short_description }}
+        </div>
+        
+        <div class="qr-container">
+            <p>Ваш QR-код для входа:</p>
+            <img src="cid:qr_code.png" alt="QR-код" style="width: 200px;">
+        </div>
+        
+        <p>Приходите заранее и покажите этот QR-код на входе.</p>
+    </div>
+</body>
+</html>

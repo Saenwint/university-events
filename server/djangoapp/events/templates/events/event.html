@@ -47,7 +47,10 @@
                     
                     <div class="d-grid gap-2 mt-3">
                         {% if user.is_authenticated %}
-                            <button class="btn btn-primary">Зарегистрироваться</button>
+                            <form method="post" action="{% url 'register_for_event' event.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                            </form>
                         {% else %}
                             <a href="{% url 'login' %}?next={% url 'event_detail' event.id %}" class="btn btn-primary">
                                 Войдите, чтобы зарегистрироваться
