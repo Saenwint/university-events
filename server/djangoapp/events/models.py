@@ -1,15 +1,23 @@
 from django.db import models
-from django.utils import timezone
 from django.core.validators import MinValueValidator
 
-# Create your models here.
+
 class Event(models.Model):
     SIGNIFICANCE_LEVELS = [
         ('legendary', 'Легендарный'),
         ('epic', 'Эпический'),
         ('normal', 'Обычный'),
     ]
-    
+    EVENT_TYPES = [
+        ('competition', 'Соревнование'),
+        ('hackathon', 'Хакатон'),
+        ('meetup', 'Встреча'),
+        ('lecture', 'Лекция'),
+        ('workshop', 'Мастер-класс'),
+        ('conference', 'Конференция'),
+        ('cultural', 'Культурное мероприятие'),
+        ('sport', 'Спортивное событие'),
+    ]   
     title = models.CharField(max_length=200, verbose_name='Название')
     short_description = models.TextField(max_length=300, verbose_name='Краткое описание')
     full_description = models.TextField(verbose_name='Полное описание')
@@ -21,6 +29,12 @@ class Event(models.Model):
         default=0,
         validators=[MinValueValidator(0)],
         verbose_name='ЛЭТИ-коины'
+    )
+    type = models.CharField(
+        max_length=20,
+        choices=EVENT_TYPES,
+        default='meetup',
+        verbose_name='Тип мероприятия'
     )
     significance_level = models.CharField(
         max_length=10,
