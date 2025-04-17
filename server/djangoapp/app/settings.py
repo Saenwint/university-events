@@ -46,7 +46,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',  # Только важные сообщения (не DEBUG)
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
@@ -54,12 +54,12 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',  # Игнорируем DEBUG-логи Django
+            'level': 'INFO',
             'propagate': True,
         },
-        'users': {  # Логи вашего приложения
+        'users': {
             'handlers': ['console'],
-            'level': 'DEBUG',  # или 'WARNING' для ещё меньшей детализации
+            'level': 'INFO',
             'propagate': False,
         },
     },
