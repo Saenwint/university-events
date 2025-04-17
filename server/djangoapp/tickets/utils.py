@@ -1,8 +1,9 @@
+import qrcode
+from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from io import BytesIO
-import qrcode
-from django.conf import settings
+
+from app import settings
 
 def send_ticket_email(request, user, event, ticket):
     """
