@@ -30,6 +30,12 @@
                     <h4>✓ QR-код успешно отсканирован</h4>
                     <p><strong>Мероприятие:</strong> {{ ticket.event.title }}</p>
                     <p><strong>Пользователь:</strong> {{ user.get_full_name }} ({{ user.email }})</p>
+                    {% if coins_added %}
+                    <p class="text-success">
+                        <strong>Начислено коинов:</strong> {{ coins_added }} 
+                        (текущий баланс: {{ user.balance }})
+                    </p>
+                    {% endif %}
                     <p><strong>Дата регистрации:</strong> {{ ticket.registration_date }}</p>
                     <p><strong>Время сканирования:</strong> {{ ticket.used_at }}</p>
                 </div>

@@ -1,18 +1,16 @@
-from django.shortcuts import get_object_or_404
+import cv2
+import numpy as np
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.http import JsonResponse
-from django.shortcuts import render
 from pyzbar.pyzbar import decode
-from PIL import Image
 from django.views import View
-import cv2
-import numpy as np
 
 from tickets.forms import QRUploadForm
-from events.models import Event
 from tickets.models import Ticket
 from tickets.utils import send_ticket_email
+from events.models import Event
 
 
 class RegisterForEventView(LoginRequiredMixin, View):
@@ -84,7 +82,8 @@ class ScanTicketView(View):
                         'form': self.form_class(),
                         'success': True,
                         'ticket': ticket,
-                        'user': ticket.user
+                        'user': ticket.user,
+                        'coins_added': ticket.event.coins_reward if ticket.event.coins_reward > 0 else None
                     })
                     
                 except (ValueError, Ticket.DoesNotExist):

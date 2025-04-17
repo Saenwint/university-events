@@ -23,6 +23,11 @@ class Ticket(models.Model):
         self.is_used = True
         self.used_at = timezone.now()
         self.save()
+        
+        if self.event.coins_reward > 0:
+            self.user.add_coins(self.event.coins_reward)
+        
+        return True
 
     def save(self, *args, **kwargs):
         if not self.unique_code:
@@ -31,4 +36,15 @@ class Ticket(models.Model):
 
     def generate_qr_data(self):
         return f"EVENT:{self.event.id}:USER:{self.user.id}:CODE:{self.unique_code}"
+    
+
+class CoinTransaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='coin_transactions')
+    amount = models.IntegerField()
+    ticket = models.ForeignKey(Ticket, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reason = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ['-created_at']
     
