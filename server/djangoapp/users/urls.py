@@ -5,7 +5,8 @@ from users.views import (
     LoginView,
     LogoutView,
     ProfileView,
-    ConfirmEmailView
+    ConfirmEmailView,
+    UserEventsView
 )
 
 urlpatterns = [
@@ -14,4 +15,5 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('my_events/', UserEventsView.as_view(), name='my_events')
 ]

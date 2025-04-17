@@ -133,3 +133,11 @@ class ProfileView(LoginRequiredMixin, View):
 
     def get(self, request):
         return render(request, self.template_name, {'user': request.user})
+    
+
+class UserEventsView(View):
+    """Мероприятия, на которые зарегестрировался пользователь"""
+    template_name = ''
+
+    def get(self, request):
+        ...

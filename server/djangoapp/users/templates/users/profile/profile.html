@@ -1,31 +1,79 @@
-{% extends 'users/base.html' %}
+{% extends 'main/base.html' %}
+{% load static %}
 
-{% block title %}Профиль{% endblock %}
+{% block extra_css %}
+<link href="{% static 'users/css/profile.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}Профиль | {{ user.get_full_name }}{% endblock %}
 
 {% block content %}
-<div class="profile-card card">
-    <div class="card-header bg-primary text-white">
-        <h2 class="mb-0">Профиль пользователя</h2>
-    </div>
-    
-    <div class="card-body">
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <p><strong>Email:</strong> {{ user.email }}</p>
-                <p><strong>Имя:</strong> {{ user.first_name }}</p>
-                <p><strong>Фамилия:</strong> {{ user.last_name }}</p>
-            </div>
-            <div class="col-md-6">
-                <div class="alert alert-info">
-                    <h5 class="alert-heading">Баланс</h5>
-                    <p class="mb-0">{{ user.balance }} ЛЭТИ-коинов</p>
+<div class="profile-container">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="profile-card card shadow-sm">
+                <div class="profile-header text-center py-4">
+                    <div class="profile-avatar">
+                        <i class="bi bi-person-circle"></i>
+                    </div>
+                    <h3 class="mt-3">{{ user.get_full_name }}</h3>
+                    <p class="text-muted">{{ user.email }}</p>
                 </div>
-                <p><small class="text-muted">Дата регистрации: {{ user.date_joined|date:"d.m.Y" }}</small></p>
+                
+                <div class="card-body">
+                    <div class="profile-balance mb-4">
+                        <h5><i class="bi bi-wallet2"></i> Баланс</h5>
+                        <div class="balance-value">
+                            {{ user.balance }} <span class="coins-text">ЛЭТИ-коинов</span>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="profile-meta">
+                        <p><i class="bi bi-calendar-check"></i> Зарегистрирован: {{ user.date_joined|date:"d.m.Y" }}</p>
+                        <p><i class="bi bi-clock-history"></i> Последний вход: {{ user.last_login|date:"d.m.Y H:i" }}</p>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'logout' %}" class="btn btn-outline-danger w-100">
+                        <i class="bi bi-box-arrow-right"></i> Выйти
+                    </a>
+                </div>
             </div>
         </div>
-
-        <div class="d-grid gap-2">
-            <a href="{% url 'logout' %}" class="btn btn-outline-danger">Выйти</a>
+        
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-ticket-perforated"></i> Мои мероприятия</h5>
+                </div>
+                <div class="card-body">
+                    {% if user.tickets.all %}
+                        <div class="list-group">
+                            {% for ticket in user.tickets.all %}
+                            <a href="{% url 'events:event_detail' ticket.event.id %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ ticket.event.title }}</h6>
+                                    <small>{{ ticket.event.date|date:"d.m.Y" }}</small>
+                                </div>
+                                <small class="text-muted">{{ ticket.event.get_type_display }}</small>
+                                {% if ticket.event.coins_reward > 0 %}
+                                <span class="badge bg-warning text-dark float-end">
+                                    <i class="bi bi-coin"></i> {{ ticket.event.coins_reward }}
+                                </span>
+                                {% endif %}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Вы еще не зарегистрированы ни на одно мероприятие
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
