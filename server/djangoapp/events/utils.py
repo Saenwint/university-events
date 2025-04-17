@@ -29,7 +29,7 @@ def send_ticket_email(request, user, event, ticket):
         'ticket': ticket,
         'unique_code': ticket.generate_qr_data(),
     }
-    html_message = render_to_string('tickets/ticket_email.html', context)
+    html_message = render_to_string('events/email_ticket.html', context)
 
     email = EmailMultiAlternatives(
         subject=f'Билет на мероприятие "{event.title}"',

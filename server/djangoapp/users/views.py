@@ -10,6 +10,7 @@ from users.forms import RegistrationForm, LoginForm
 from users.models import User
 from users import utils
 from users.tokens import generate_token
+from tickets.models import Ticket
 
 
 class RegisterView(View):
@@ -137,7 +138,12 @@ class ProfileView(LoginRequiredMixin, View):
 
 class UserEventsView(View):
     """Мероприятия, на которые зарегестрировался пользователь"""
-    template_name = ''
+    template_name = 'users/profile/user_events.html'
 
     def get(self, request):
-        ...
+        user = request.user
+        tickets = Ticket.objects.filter(user=user).select_related('event').order_by('-registration_date')
+        
+        return render(request, self.template_name, {
+            'tickets': tickets,
+        })
