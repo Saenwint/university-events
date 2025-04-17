@@ -8,12 +8,6 @@ from events.models import Event
 from events.forms import EventForm
 
 # Create your views here.
-class EventCreateView(CreateView):
-    model = Event
-    form_class = EventForm
-    template_name = 'events/event_form.html'
-    success_url = reverse_lazy('event_list')
-
 class EventListView(View):
     template_name = 'main/home.html'
     

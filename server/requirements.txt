@@ -1,7 +1,11 @@
 asgiref==3.8.1
 Django==5.2
 dotenv==0.9.9
+numpy==2.2.4
+opencv-python==4.11.0.86
 pillow==11.1.0
 psycopg2==2.9.10
 python-dotenv==1.1.0
+pyzbar==0.1.9
+qrcode==8.1
 sqlparse==0.5.3
