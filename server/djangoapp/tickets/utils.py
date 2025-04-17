@@ -27,7 +27,7 @@ def send_ticket_email(request, user, event, ticket):
         'user': user,
         'event': event,
         'ticket': ticket,
-        'qr_code_data': ticket.generate_qr_data(),
+        'unique_code': ticket.generate_qr_data(),
     }
     html_message = render_to_string('tickets/ticket_email.html', context)
 
@@ -40,5 +40,5 @@ def send_ticket_email(request, user, event, ticket):
     email.attach_alternative(html_message, "text/html")
      
     email.attach('qr_code.png', buffer.read(), 'image/png')
-    
+
     return email.send(fail_silently=False)
