@@ -8,7 +8,6 @@ def send_ticket_email(request, user, event, ticket):
     """
     Отправка письма с билетом на мероприятие.
     """
-    # Генерация QR-кода
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -23,7 +22,6 @@ def send_ticket_email(request, user, event, ticket):
     img.save(buffer, format='PNG')
     buffer.seek(0)
 
-    # Создание HTML-письма
     context = {
         'user': user,
         'event': event,
@@ -34,13 +32,12 @@ def send_ticket_email(request, user, event, ticket):
 
     email = EmailMultiAlternatives(
         subject=f'Билет на мероприятие "{event.title}"',
-        body='',  # Текстовая версия
+        body='',
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[user.email],
     )
     email.attach_alternative(html_message, "text/html")
-    
-    # Прикрепляем QR-код как inline изображение
+     
     email.attach('qr_code.png', buffer.read(), 'image/png')
     
     return email.send(fail_silently=False)
