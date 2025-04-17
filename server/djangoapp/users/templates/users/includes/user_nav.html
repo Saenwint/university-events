@@ -1,0 +1,28 @@
+<!-- users/templates/users/includes/user_nav.html -->
+<div class="profile-nav card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-list"></i> Навигация</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item {% if request.path == '/users/profile/' %}active{% endif %}">
+            <a href="{% url 'profile' %}" class="text-decoration-none d-flex align-items-center">
+                <i class="bi bi-person me-2"></i> Профиль
+            </a>
+        </li>
+        <li class="list-group-item {% if request.path == '/users/my_events/' %}active{% endif %}">
+            <a href="{% url 'my_events' %}" class="text-decoration-none d-flex align-items-center">
+                <i class="bi bi-ticket-perforated me-2"></i> Мои мероприятия
+            </a>
+        </li>
+        <li class="list-group-item {% if request.path == '/users/settings/' %}active{% endif %}">
+            <a href="#" class="text-decoration-none d-flex align-items-center">
+                <i class="bi bi-gear me-2"></i> Настройки
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="{% url 'logout' %}" class="text-decoration-none d-flex align-items-center text-danger">
+                <i class="bi bi-box-arrow-right me-2"></i> Выйти
+            </a>
+        </li>
+    </ul>
+</div>

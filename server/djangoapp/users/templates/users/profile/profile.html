@@ -9,10 +9,10 @@
 
 {% block content %}
 <div class="profile-container">
-    <div class="row">
-        <div class="col-lg-4">
-            <div class="profile-card card shadow-sm">
-                <div class="profile-header text-center py-4">
+    <div class="row gx-4">
+        <div class="col-lg-8">
+            <div class="profile-card card">
+                <div class="profile-header">
                     <div class="profile-avatar">
                         <i class="bi bi-person-circle"></i>
                     </div>
@@ -35,45 +35,11 @@
                         <p><i class="bi bi-clock-history"></i> Последний вход: {{ user.last_login|date:"d.m.Y H:i" }}</p>
                     </div>
                 </div>
-                
-                <div class="card-footer bg-transparent">
-                    <a href="{% url 'logout' %}" class="btn btn-outline-danger w-100">
-                        <i class="bi bi-box-arrow-right"></i> Выйти
-                    </a>
-                </div>
             </div>
         </div>
         
-        <div class="col-lg-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-ticket-perforated"></i> Мои мероприятия</h5>
-                </div>
-                <div class="card-body">
-                    {% if user.tickets.all %}
-                        <div class="list-group">
-                            {% for ticket in user.tickets.all %}
-                            <a href="{% url 'events:event_detail' ticket.event.id %}" class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">{{ ticket.event.title }}</h6>
-                                    <small>{{ ticket.event.date|date:"d.m.Y" }}</small>
-                                </div>
-                                <small class="text-muted">{{ ticket.event.get_type_display }}</small>
-                                {% if ticket.event.coins_reward > 0 %}
-                                <span class="badge bg-warning text-dark float-end">
-                                    <i class="bi bi-coin"></i> {{ ticket.event.coins_reward }}
-                                </span>
-                                {% endif %}
-                            </a>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Вы еще не зарегистрированы ни на одно мероприятие
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="col-lg-4">
+            {% include 'users/includes/user_nav.html' %}
         </div>
     </div>
 </div>
