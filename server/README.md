@@ -4,11 +4,14 @@ sudo apt-get install libpq-dev
 pip install psycopg2
 ```
 
+### PyZBAR
+```bash
+sudo apt install libzbar0 libzbar-dev
+```
+
 ### Структура сервера
 
 ```
-Сейчас сделаем без аналитики, потом ее прикрутим, итак
-Структура проекта:
 .
 ├── analytics - здесь будет аналитика по посещению мероприятий
 │   ├── admin.py
