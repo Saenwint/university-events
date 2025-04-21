@@ -7,7 +7,8 @@ from users.views import (
     LogoutView,
     ProfileView,
     ConfirmEmailView,
-    UserEventsView
+    UserEventsView,
+    UserSettings,
 )
 
 app_name = 'users'
@@ -19,5 +20,6 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('profile/', ProfileView.as_view(), name='profile'),
-    path('my_events/', UserEventsView.as_view(), name='my_events')
+    path('my_events/', UserEventsView.as_view(), name='my_events'),
+    path('settings/', UserSettings.as_view(), name='settings'),
 ]

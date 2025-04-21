@@ -19,3 +19,7 @@ class LoginForm(forms.Form):
     """Форма для входа пользователя."""
     email = forms.EmailField(label="Email")
     password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
+
+
+class ChangePasswordForm(forms.Form):
+    """Форма для смены пароля."""

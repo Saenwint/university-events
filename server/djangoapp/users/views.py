@@ -143,3 +143,10 @@ class UserEventsView(LoginRequiredMixin, View):
         return render(request, self.template_name, {
             'tickets': tickets,
         })
+    
+
+
+
+class UserSettings(LoginRequiredMixin, View):
+    """Настройки пользователя"""
+
