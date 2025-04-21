@@ -58,7 +58,7 @@
                     <div class="d-grid gap-2">
                         {% if user.is_authenticated %}
                             {% if not user.is_confirmed %}
-                                <a href="{% url 'users:profile' %}?next={% url 'events:event_detail' event.id %}" class="btn btn-primary btn-lg">
+                                <a href="{% url 'users:settings' %}?next={% url 'events:event_detail' event.id %}" class="btn btn-primary btn-lg">
                                     <i class="bi bi-box-arrow-in-right"></i> Подтвердите почту для регистрации
                                 </a>
                             {% else %}

@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.contrib import messages
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 
-from users.forms import RegistrationForm, LoginForm
+from users.forms import RegistrationForm, LoginForm, ChangePasswordForm
 from users.models import User
 from users import utils
 from users.tokens import generate_token
@@ -52,7 +52,7 @@ class RegisterView(View):
                     'Регистрация успешна! Проверьте email для подтверждения. '
                     'Вы сможете войти после подтверждения email.'
                 )
-                return redirect('login')
+                return redirect('users:login')
                 
             except Exception as e:
                 messages.error(
@@ -145,8 +145,66 @@ class UserEventsView(LoginRequiredMixin, View):
         })
     
 
-
-
 class UserSettings(LoginRequiredMixin, View):
     """Настройки пользователя"""
+    login_url = '/users/login/'
+    template_name = 'users/profile/settings.html'
+
+    def get(self, request):
+        password_form = ChangePasswordForm(user=request.user)
+        return render(request, self.template_name, {
+            'password_form': password_form,
+            'user': request.user
+        })
+
+    def post(self, request):
+        if 'resend_confirmation' in request.POST:
+            return self.resend_confirmation(request)
+        elif 'change_password' in request.POST:
+            return self.change_password(request)
+        return redirect('users:settings')
+
+    def resend_confirmation(self, request):
+        user = request.user
+        if user.is_confirmed:
+            messages.info(request, "Ваш email уже подтвержден")
+            return redirect('users:settings')
+
+        try:
+            mail = utils.send_confirmation_email(request=request, user=user)
+            if not mail:
+                messages.error(request, "Не удалось отправить email")
+                return redirect('users:settings')
+            
+            messages.success(
+                request,
+                'Регистрация успешна! Проверьте email для подтверждения. '
+                'Вы сможете войти после подтверждения email.'
+            )
+            return redirect('users:settings')
+            
+        except Exception as e:
+            messages.error(
+                request,
+                f'Ошибка при отправке письма: {str(e)}. Попробуйте позже.'
+            )
+            return redirect('users:register')
+                
+
+    def change_password(self, request):
+        form = ChangePasswordForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Обновление сессии, чтобы пользователь не разлогинился
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Пароль успешно изменен')
+            return redirect('users:settings')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{error}")
+            return render(request, self.template_name, {
+                'password_form': form,
+                'user': request.user
+            })
 
