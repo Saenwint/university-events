@@ -57,12 +57,18 @@
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         {% if user.is_authenticated %}
-                            <form method="post" action="{% url 'events:register' event.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-ticket-perforated"></i> Зарегистрироваться
-                                </button>
-                            </form>
+                            {% if not user.is_confirmed %}
+                                <a href="{% url 'users:profile' %}?next={% url 'events:event_detail' event.id %}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-box-arrow-in-right"></i> Подтвердите почту для регистрации
+                                </a>
+                            {% else %}
+                                <form method="post" action="{% url 'events:register' event.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-ticket-perforated"></i> Зарегистрироваться
+                                    </button>
+                                </form>
+                            {% endif %}
                         {% else %}
                             <a href="{% url 'users:login' %}?next={% url 'events:event_detail' event.id %}" class="btn btn-primary btn-lg">
                                 <i class="bi bi-box-arrow-in-right"></i> Войдите для регистрации

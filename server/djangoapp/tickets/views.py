@@ -8,8 +8,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from tickets.forms import QRUploadForm
 from tickets.models import Ticket
-        
-# TODO: зайти на эндпоинт может только is_staff
+
+
 class ScanTicketView(LoginRequiredMixin, View):
     login_url = '/users/login/'
     template_name = 'tickets/scan.html'

@@ -40,7 +40,9 @@ class EventDetailView(View):
     
 
 class RegisterForEventView(LoginRequiredMixin, View):
+    login_url = '/users/login/'
     template_name = 'events/email_ticket.html'
+    
     def post(self, request, event_id):
         event = get_object_or_404(Event, id=event_id)
         
