@@ -1,0 +1,51 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'events/css/style.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Сканирование билетов</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    {{ form.qr_image.label_tag }}
+                    {{ form.qr_image }}
+                    <small class="form-text text-muted">{{ form.qr_image.help_text }}</small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Отсканировать QR-код</button>
+                <a href="{% url 'tickets:scan_ticket' %}" class="btn btn-secondary">Очистить</a>
+            </form>
+            
+            {% if error %}
+                <div class="alert alert-danger mt-3">
+                    <strong>Ошибка:</strong> {{ error }}
+                </div>
+            {% endif %}
+            
+            {% if success %}
+                <div class="alert alert-success mt-3">
+                    <h4>✓ QR-код успешно отсканирован</h4>
+                    <p><strong>Мероприятие:</strong> {{ ticket.event.title }}</p>
+                    <p><strong>Пользователь:</strong> {{ user.get_full_name }} ({{ user.email }})</p>
+                    {% if coins_added %}
+                    <p class="text-success">
+                        <strong>Начислено коинов:</strong> {{ coins_added }} 
+                        (текущий баланс: {{ user.balance }})
+                    </p>
+                    {% endif %}
+                    <p><strong>Дата регистрации:</strong> {{ ticket.registration_date }}</p>
+                    <p><strong>Время сканирования:</strong> {{ ticket.used_at }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

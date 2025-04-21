@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
 )
 from django.utils import timezone
 
+
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -58,3 +59,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         """Безопасное добавление коинов"""
         self.balance += amount
         self.save()
+
+    def get_full_name(self):
+        return f"{self.last_name} {self.first_name}"

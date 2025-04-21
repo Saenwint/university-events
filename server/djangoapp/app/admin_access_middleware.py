@@ -9,16 +9,13 @@ class AdminAccessMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Проверяем, если запрос идет к админке
         if request.path.startswith('/admin/'):
-            # Если пользователь не аутентифицирован - перенаправляем на логин
             if not request.user.is_authenticated:
                 return redirect(f"{reverse('admin:login')}?next={request.path}")
             
-            # Проверяем email пользователя
             admin_emails = getattr(settings, 'ADMIN_LIST', [])
             if request.user.email not in admin_emails:
                 messages.error(request, "Доступ запрещён")
-                return redirect('home')  # Или другая страница
+                return redirect('home')
         
         return self.get_response(request)

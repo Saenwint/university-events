@@ -1,0 +1,98 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'events/css/style.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <img src="{{ event.image.url }}" class="card-img-top event-detail-img" alt="{{ event.title }}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h1 class="card-title">{{ event.title }}</h1>
+                        <span class="badge {{ event.significance_level }}">
+                            {{ event.get_significance_level_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <span class="badge bg-light text-dark">
+                            <i class="bi bi-tag"></i> {{ event.get_type_display }}
+                        </span>
+                        {% if event.coins_reward > 0 %}
+                        <span class="badge bg-warning text-dark ms-2">
+                            <i class="bi bi-coin"></i> {{ event.coins_reward }} ЛЭТИ-коинов
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="event-content mb-4">
+                        {{ event.full_description|linebreaks }}
+                    </div>
+                    
+                    <div class="event-meta">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><i class="bi bi-calendar-event"></i> <strong>Дата:</strong> {{ event.date|date:"d M Y H:i" }}</p>
+                                <p><i class="bi bi-geo-alt"></i> <strong>Место:</strong> {{ event.location }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><i class="bi bi-people"></i> <strong>Для кого:</strong> {{ event.target_audience }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top zindex-sticky">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Участие</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if user.is_authenticated %}
+                            {% if not user.is_confirmed %}
+                                <a href="{% url 'users:settings' %}?next={% url 'events:event_detail' event.id %}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-box-arrow-in-right"></i> Подтвердите почту для регистрации
+                                </a>
+                            {% else %}
+                                <form method="post" action="{% url 'events:register' event.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-ticket-perforated"></i> Зарегистрироваться
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'users:login' %}?next={% url 'events:event_detail' event.id %}" class="btn btn-primary btn-lg">
+                                <i class="bi bi-box-arrow-in-right"></i> Войдите для регистрации
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="event-organizer">
+                        <h6><i class="bi bi-person-badge"></i> Организатор</h6>
+                        <p>Центр студенческих инициатив</p>
+                    </div>
+                    
+                    <div class="event-share mt-4">
+                        <h6><i class="bi bi-share"></i> Поделиться</h6>
+                        <div class="d-flex gap-2 mt-2">
+                            <a href="#" class="btn btn-outline-secondary btn-sm"><i class="bi bi-telegram"></i></a>
+                            <a href="#" class="btn btn-outline-secondary btn-sm"><i class="bi bi-whatsapp"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

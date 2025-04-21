@@ -1,0 +1,78 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'events/css/style.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+
+        <div class="col-lg-9 order-lg-1 order-2">
+            <h1 class="mb-4">Предстоящие мероприятия</h1>
+            
+            {% if events %}
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for event in events %}
+                <div class="col">
+                    <div class="card event-card h-100 shadow-sm">
+                        <div class="position-relative">
+                            <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge {{ event.significance_level }}">
+                                    {{ event.get_significance_level_display }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <span class="badge bg-light text-dark mb-2">
+                                {{ event.get_type_display }}
+                            </span>
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <p class="card-text text-muted">{{ event.short_description }}</p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar-date"></i> {{ event.date|date:"d M Y" }}
+                                </small>
+                                {% if event.coins_reward > 0 %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-coin"></i> {{ event.coins_reward }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'events:event_detail' event.id %}" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> По выбранным фильтрам мероприятий не найдено
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-3 order-lg-2 order-1">
+            <div class="filter-container">
+                <div class="card filter-card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-funnel"></i> Фильтры</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="get">
+                        <div class="mb-3">
+                            {{ form.as_p }}
+                            <button type="submit" class="btn btn-primary w-100">Применить</button>
+                            <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary w-100 mt-2">Сбросить</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

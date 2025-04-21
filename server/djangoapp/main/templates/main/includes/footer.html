@@ -1,0 +1,31 @@
+<footer class="py-4 mt-auto">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>University Events</h5>
+                <p class="text-muted">Платформа для организации и участия в университетских мероприятиях</p>
+            </div>
+            <div class="col-md-3">
+                <h5>Навигация</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'main:home' %}" class="text-decoration-none">Главная</a></li>
+                    <li><a href="{% url 'events:event_list' %}" class="text-decoration-none">Мероприятия</a></li>
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'users:my_events' %}" class="text-decoration-none">Мои мероприятия</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h5>Контакты</h5>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-envelope me-2"></i> events@university.edu</li>
+                    <li><i class="bi bi-telephone me-2"></i> +7 (123) 456-78-90</li>
+                </ul>
+            </div>
+        </div>
+        <hr>
+        <div class="text-center text-muted">
+            <small>© {% now "Y" %} University Events. Все права защищены.</small>
+        </div>
+    </div>
+</footer>

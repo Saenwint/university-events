@@ -1,0 +1,48 @@
+/* Base styles */
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #212529;
+}
+
+/* Navbar customization */
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Hero section */
+.hero-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Card hover effect */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Significance level badges */
+.badge.bg-legendary {
+    background: linear-gradient(90deg, #ff8a00, #ffc400);
+    color: #000;
+}
+
+.badge.bg-epic {
+    background: linear-gradient(90deg, #6a00f4, #a100f2);
+    color: #fff;
+}
+
+.badge.bg-normal {
+    background: linear-gradient(90deg, #0061ff, #00c3ff);
+    color: #fff;
+}
+
+/* Footer styles */
+footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
