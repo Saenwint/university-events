@@ -38,7 +38,7 @@ class EventDetailView(View):
         event = get_object_or_404(Event, id=id)
         return render(request, self.template_name, {'event': event})
     
-
+# TODO: добавить нормальную верстку билета для входа
 class RegisterForEventView(LoginRequiredMixin, View):
     login_url = '/users/login/'
     template_name = 'events/email_ticket.html'

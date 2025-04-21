@@ -5,7 +5,7 @@ from django.utils import timezone
 from events.models import Event
 from users.models import User
 
-# Create your models here.
+
 class Ticket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tickets')
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='registrations')
