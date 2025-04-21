@@ -1,6 +1,10 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<link href="{% static 'users/css/profile.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block title %}Мои мероприятия | University Events{% endblock %}
 
 {% block content %}

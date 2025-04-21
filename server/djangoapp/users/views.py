@@ -107,13 +107,6 @@ class LoginView(View):
             password = form.cleaned_data['password']
             user = authenticate(request, email=email, password=password)
             if user is not None:
-                if not user.is_confirmed:
-                    messages.error(
-                        request,
-                        'Ваш email не подтвержден. '
-                        'Проверьте почту для получения ссылки подтверждения.'
-                    )
-                    return redirect('login')
                 login(request, user)
                 return redirect('profile')
             else:
@@ -121,8 +114,9 @@ class LoginView(View):
         return render(request, self.template_name, {'form': form})
 
 
-class LogoutView(View):
+class LogoutView(LoginRequiredMixin, View):
     """Выход пользователя."""
+    login_url = '/users/login/'
     def get(self, request):
         logout(request)
         return redirect('login')
@@ -130,14 +124,16 @@ class LogoutView(View):
 
 class ProfileView(LoginRequiredMixin, View):
     """Профиль пользователя по ID."""
+    login_url = '/users/login/'
     template_name = 'users/profile/profile.html'
 
     def get(self, request):
         return render(request, self.template_name, {'user': request.user})
     
 
-class UserEventsView(View):
+class UserEventsView(LoginRequiredMixin, View):
     """Мероприятия, на которые зарегестрировался пользователь"""
+    login_url = '/users/login/'
     template_name = 'users/profile/user_events.html'
 
     def get(self, request):
