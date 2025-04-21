@@ -15,7 +15,7 @@
             </a>
         </li>
         <li class="list-group-item {% if request.path == '/users/settings/' %}active{% endif %}">
-            <a href="#" class="text-decoration-none d-flex align-items-center">
+            <a href="{% url 'users:settings' %}" class="text-decoration-none d-flex align-items-center">
                 <i class="bi bi-gear me-2"></i> Настройки
             </a>
         </li>
