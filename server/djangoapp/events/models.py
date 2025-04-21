@@ -1,7 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
-
+# TODO: добавить организатора мероприятий
+# добавить ссылку на организатора, если есть
 class Event(models.Model):
     SIGNIFICANCE_LEVELS = [
         ('legendary', 'Легендарный'),

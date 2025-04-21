@@ -1,6 +1,10 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<link href="{% static 'events/css/style.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block title %}Главная страница | University Events{% endblock %}
 
 {% block content %}
@@ -37,7 +41,7 @@
                     <div class="position-relative">
                         <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 200px; object-fit: cover;">
                         <div class="position-absolute top-0 end-0 m-2">
-                            <span class="badge bg-{{ event.get_significance_level|default:'primary' }}">
+                            <span class="badge {{ event.significance_level }}">
                                 {{ event.get_significance_level_display }}
                             </span>
                         </div>

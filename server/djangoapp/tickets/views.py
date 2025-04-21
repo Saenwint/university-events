@@ -10,7 +10,7 @@ from tickets.models import Ticket
         
 
 class ScanTicketView(View):
-    template_name = 'tickets/scanner.html'
+    template_name = 'tickets/scan.html'
     form_class = QRUploadForm
 
     def get(self, request):
