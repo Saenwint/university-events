@@ -43,6 +43,13 @@ class Event(models.Model):
         default='normal',
         verbose_name='Уровень значимости'
     )
+    organizer = models.CharField(max_length=200, verbose_name='Организатор')
+    organizer_link = models.URLField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name='Ссылка на организатора'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
