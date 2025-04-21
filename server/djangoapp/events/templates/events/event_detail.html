@@ -64,7 +64,7 @@
                                 </button>
                             </form>
                         {% else %}
-                            <a href="{% url 'login' %}?next={% url 'events:event_detail' event.id %}" class="btn btn-primary btn-lg">
+                            <a href="{% url 'users:login' %}?next={% url 'events:event_detail' event.id %}" class="btn btn-primary btn-lg">
                                 <i class="bi bi-box-arrow-in-right"></i> Войдите для регистрации
                             </a>
                         {% endif %}
@@ -81,7 +81,6 @@
                         <h6><i class="bi bi-share"></i> Поделиться</h6>
                         <div class="d-flex gap-2 mt-2">
                             <a href="#" class="btn btn-outline-secondary btn-sm"><i class="bi bi-telegram"></i></a>
-                            <a href="#" class="btn btn-outline-secondary btn-sm"><i class="bi bi-vk"></i></a>
                             <a href="#" class="btn btn-outline-secondary btn-sm"><i class="bi bi-whatsapp"></i></a>
                         </div>
                     </div>

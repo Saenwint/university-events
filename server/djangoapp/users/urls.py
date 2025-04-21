@@ -10,6 +10,8 @@ from users.views import (
     UserEventsView
 )
 
+app_name = 'users'
+
 urlpatterns = [
     path('', RedirectView.as_view(url='/users/login', permanent=False)),
     path('confirm/<uidb64>/<token>/', ConfirmEmailView.as_view(), name='confirm'),

@@ -8,10 +8,10 @@
             <div class="col-md-3">
                 <h5>Навигация</h5>
                 <ul class="list-unstyled">
-                    <li><a href="{% url 'home' %}" class="text-decoration-none">Главная</a></li>
+                    <li><a href="{% url 'main:home' %}" class="text-decoration-none">Главная</a></li>
                     <li><a href="{% url 'events:event_list' %}" class="text-decoration-none">Мероприятия</a></li>
                     {% if user.is_authenticated %}
-                    <li><a href="{% url 'my_events' %}" class="text-decoration-none">Мои мероприятия</a></li>
+                    <li><a href="{% url 'users:my_events' %}" class="text-decoration-none">Мои мероприятия</a></li>
                     {% endif %}
                 </ul>
             </div>

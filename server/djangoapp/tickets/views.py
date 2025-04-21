@@ -1,19 +1,24 @@
 import cv2
 import numpy as np
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from pyzbar.pyzbar import decode
-from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 from tickets.forms import QRUploadForm
 from tickets.models import Ticket
         
-
-class ScanTicketView(View):
+# TODO: зайти на эндпоинт может только is_staff
+class ScanTicketView(LoginRequiredMixin, View):
+    login_url = '/users/login/'
     template_name = 'tickets/scan.html'
     form_class = QRUploadForm
 
     def get(self, request):
+        user = request.user
+        if not user.is_staff:
+            return redirect('/')
         return render(request, self.template_name, {'form': self.form_class()})
 
     def post(self, request):

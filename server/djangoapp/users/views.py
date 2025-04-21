@@ -30,11 +30,11 @@ class RegisterView(View):
 
             if User.objects.filter(email=email).exists():
                 messages.error(request, "Этот email уже зарегистрирован!")
-                return redirect('register')
+                return redirect('users:register')
 
             if pass1 != pass2:
                 messages.error(request, "Пароли не совпадают!")
-                return redirect('register')
+                return redirect('users:register')
             
             user = form.save(commit=False)
             user.is_confirmed = False
@@ -45,7 +45,7 @@ class RegisterView(View):
                 mail = utils.send_confirmation_email(request=request, user=user)
                 if not mail:
                     messages.error(request, "Не удалось отправить email")
-                    return redirect('register')
+                    return redirect('users:register')
                 
                 messages.success(
                     request,
@@ -59,7 +59,7 @@ class RegisterView(View):
                     request,
                     f'Ошибка при отправке письма: {str(e)}. Попробуйте позже.'
                 )
-                return redirect('register')
+                return redirect('users:register')
                 
         return render(request, self.template_name, {'form': form})
     
@@ -79,17 +79,17 @@ class ConfirmEmailView(View):
 
         if user is None:
             messages.error(request, "Неверная ссылка подтверждения.")
-            return redirect('login')
+            return redirect('users:login')
         
         if generate_token.check_token(user, token):
             user.is_confirmed = True
             user.save()
             messages.success(request, 'Email успешно подтверждён!')
             login(request, user)
-            return redirect('profile')
+            return redirect('users:profile')
         else:
             messages.error(request, "Ссылка устарела или недействительна.")
-            return redirect('login')
+            return redirect('users:login')
 
 
 class LoginView(View):
@@ -108,7 +108,7 @@ class LoginView(View):
             user = authenticate(request, email=email, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('profile')
+                return redirect('users:profile')
             else:
                 form.add_error(None, "Неверный email или пароль")
         return render(request, self.template_name, {'form': form})
@@ -119,7 +119,7 @@ class LogoutView(LoginRequiredMixin, View):
     login_url = '/users/login/'
     def get(self, request):
         logout(request)
-        return redirect('login')
+        return redirect('users:login')
 
 
 class ProfileView(LoginRequiredMixin, View):

@@ -1,4 +1,9 @@
 {% extends 'main/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'events/css/style.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -16,7 +21,7 @@
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Отсканировать QR-код</button>
-                <a href="{% url 'scan_ticket' %}" class="btn btn-secondary">Очистить</a>
+                <a href="{% url 'tickets:scan_ticket' %}" class="btn btn-secondary">Очистить</a>
             </form>
             
             {% if error %}
