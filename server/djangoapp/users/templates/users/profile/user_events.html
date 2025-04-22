@@ -49,7 +49,7 @@
                                 </div>
                             </div>
 
-                            <!-- QR Modal -->
+                            <!-- QR Modal FIXME: qr должен быть по центу модального окна -->
                             <div class="modal fade" id="qrModal{{ ticket.id }}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
@@ -58,8 +58,7 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body text-center">
-                                            <div id="qrCode{{ ticket.id }}" class="mb-3"></div>
-                                            <p class="text-muted">Код билета: {{ ticket.unique_code }}</p>
+                                            <div id="qrCode{{ ticket.id }}" class="qr-code-container mb-3" data-qr-data="{{ ticket.generate_qr_data }}"></div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
@@ -83,5 +82,33 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Проходим по всем модальным окнам
+        document.querySelectorAll('.modal').forEach(function (modal) {
+            modal.addEventListener('show.bs.modal', function (event) {
+                // Находим контейнер для QR-кода внутри модального окна
+                const qrContainer = modal.querySelector('[id^="qrCode"]');
+                if (!qrContainer) return;
+    
+                // Получаем данные для QR-кода из атрибута data-qr-data
+                const qrData = qrContainer.dataset.qrData;
+    
+                // Очищаем контейнер перед генерацией
+                qrContainer.innerHTML = '';
+    
+                // Генерируем QR-код
+                new QRCode(qrContainer, {
+                    text: qrData,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.L
+                });
+            });
+        });
+    });
+</script>
 
 {% endblock %}

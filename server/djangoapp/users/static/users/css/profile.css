@@ -122,6 +122,12 @@
     padding: 0.35em 0.65em;
 }
 
+.qr-code-container {
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+}
+
 /* Responsive adjustments */
 @media (max-width: 992px) {
     .profile-container, .events-container {
