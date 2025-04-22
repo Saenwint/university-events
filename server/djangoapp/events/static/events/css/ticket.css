@@ -1,0 +1,24 @@
+.ticket-container {
+    border: 2px solid #0061ff;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+.ticket-header {
+    color: #0061ff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.qr-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.qr-code {
+    width: 200px;
+    height: auto;
+}

@@ -1,8 +1,11 @@
+import base64
 from django.views import View
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
+from django.contrib import messages
+from django.shortcuts import redirect
 
 from tickets.models import Ticket
 from events.utils import send_ticket_email
@@ -41,25 +44,32 @@ class EventDetailView(View):
 
 class RegisterForEventView(LoginRequiredMixin, View):
     login_url = '/users/login/'
-    template_name = 'events/email_ticket.html'
-    
+
     def post(self, request, event_id):
         event = get_object_or_404(Event, id=event_id)
-        
+
         if Ticket.objects.filter(user=request.user, event=event).exists():
-            return JsonResponse(
-                {'status': 'error', 'message': 'Вы уже зарегистрированы на это мероприятие'},
-                status=400
-            )
-        
+            messages.error(request, 'Вы уже зарегистрированы на это мероприятие.')
+            return redirect('events:event_detail', id=event.id)
+
         ticket = Ticket.objects.create(user=request.user, event=event)
-        
+
         try:
             send_ticket_email(request, request.user, event, ticket)
-            return render(self.request, self.template_name)
+
+            messages.success(
+                request,
+                f'Вы успешно зарегистрировались на мероприятие "{event.title}". '
+                f'Билет выслан вам на почту.'
+            )
+
+            return redirect('events:event_detail', id=event.id)
+
         except Exception as e:
             ticket.delete()
-            return JsonResponse(
-                {'status': 'error', 'message': 'Ошибка при отправке билета. Попробуйте позже.'},
-                status=500
+            messages.error(
+                request,
+                'Ошибка при отправке билета. Попробуйте позже.'
             )
+
+            return redirect('events:event_detail', id=event.id)

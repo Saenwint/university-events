@@ -1,28 +1,14 @@
-import qrcode
-from io import BytesIO
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from email.mime.image import MIMEImage
 
 from app import settings
+
 
 def send_ticket_email(request, user, event, ticket):
     """
     Отправка письма с билетом на мероприятие.
     """
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(ticket.generate_qr_data())
-    qr.make(fit=True)
-
-    img = qr.make_image(fill_color="black", back_color="white")
-    buffer = BytesIO()
-    img.save(buffer, format='PNG')
-    buffer.seek(0)
-
     context = {
         'user': user,
         'event': event,
@@ -39,6 +25,9 @@ def send_ticket_email(request, user, event, ticket):
     )
     email.attach_alternative(html_message, "text/html")
      
-    email.attach('qr_code.png', buffer.read(), 'image/png')
+    if ticket.qr_code_image:
+        qr_image = MIMEImage(ticket.qr_code_image)
+        qr_image.add_header('Content-ID', '<qr_code>')
+        email.attach(qr_image)
 
     return email.send(fail_silently=False)

@@ -1,8 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
-# TODO: добавить организатора мероприятий
-# добавить ссылку на организатора, если есть
+
 class Event(models.Model):
     SIGNIFICANCE_LEVELS = [
         ('legendary', 'Легендарный'),
@@ -18,7 +17,19 @@ class Event(models.Model):
         ('conference', 'Конференция'),
         ('cultural', 'Культурное мероприятие'),
         ('sport', 'Спортивное событие'),
-    ]   
+    ]
+    ACTIVITY_TYPES = [
+        ('professional', 'Профессионально-ориентированная деятельность'),
+        ('scientific', 'Научно-образовательная деятельность'),
+        ('patriotic', 'Патриотическая и гражданско-правовая деятельность'),
+        ('cultural_creative', 'Культурно-творческая деятельность'),
+        ('spiritual', 'Духовно-нравственная деятельность'),
+        ('sports_health', 'Физкультурно-оздоровительная деятельность и воспитание здорового образа жизни'),
+        ('student_government', 'Развитие студенческого самоуправления'),
+        ('volunteering', 'Поддержка и развитие волонтёрской деятельности'),
+        ('ecological', 'Экологическая деятельность'),
+        ('tolerance', 'Воспитание толерантности'),
+    ]
     title = models.CharField(max_length=200, verbose_name='Название')
     short_description = models.TextField(max_length=300, verbose_name='Краткое описание')
     full_description = models.TextField(verbose_name='Полное описание')
@@ -49,6 +60,12 @@ class Event(models.Model):
         blank=True,
         null=True,
         verbose_name='Ссылка на организатора'
+    )
+    activity_type = models.CharField(
+        max_length=20,
+        choices=ACTIVITY_TYPES,
+        default='scientific',
+        verbose_name='Вид деятельности'
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
