@@ -80,7 +80,13 @@
                     
                     <div class="event-organizer">
                         <h6><i class="bi bi-person-badge"></i> Организатор</h6>
-                        <p>Центр студенческих инициатив</p>
+                        {% if event.organizer_link %}
+                            <a href="{{ event.organizer_link }}" target="_blank" rel="noopener noreferrer">
+                                <p>{{ event.organizer }}</p>
+                            </a>
+                        {% else %}
+                            <p>{{ event.organizer }}</p>
+                        {% endif %}
                     </div>
                     
                     <div class="event-share mt-4">
