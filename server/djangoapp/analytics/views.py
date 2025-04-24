@@ -120,13 +120,15 @@ class AttendanceAnalysisView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         if start_date:
             events = events.filter(date__range=[start_date, now])
         
+        # Дополнительная фильтрация по выбранному типу
+        if analysis_type == 'activity' and form.cleaned_data['activity_type']:
+            events = events.filter(activity_type=form.cleaned_data['activity_type'])
+        elif analysis_type == 'type' and form.cleaned_data['event_type']:
+            events = events.filter(type=form.cleaned_data['event_type'])
+        
         # Группируем по выбранному типу анализа
-        if analysis_type == 'activity':
-            field = 'activity_type'
-            label = 'Вид деятельности'
-        else:
-            field = 'type'
-            label = 'Тип мероприятия'
+        field = 'activity_type' if analysis_type == 'activity' else 'type'
+        label = 'Вид деятельности' if analysis_type == 'activity' else 'Тип мероприятия'
         
         stats = events.values(field).annotate(
             total_events=Count('id'),

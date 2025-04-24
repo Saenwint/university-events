@@ -32,18 +32,47 @@ class AttendanceAnalysisForm(forms.Form):
         ('type', 'По типу мероприятия'),
     ]
     
+    PERIOD_CHOICES = [
+        ('week', 'Неделя'),
+        ('month', 'Месяц'),
+        ('year', 'Год'),
+        ('all', 'Весь период'),
+    ]
+    
     analysis_type = forms.ChoiceField(
         choices=ANALYSIS_TYPE_CHOICES,
-        label='Тип анализа'
+        label='Тип анализа',
+        widget=forms.Select(attrs={
+            'onchange': "updateFormFields()",
+            'class': 'form-control'
+        })
+    )
+    
+    activity_type = forms.ChoiceField(
+        choices=[('', 'Все виды деятельности')] + Event.ACTIVITY_TYPES,
+        required=False,
+        label='Вид деятельности',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    event_type = forms.ChoiceField(
+        choices=[('', 'Все типы мероприятий')] + Event.EVENT_TYPES,
+        required=False,
+        label='Тип мероприятия',
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
     
     period = forms.ChoiceField(
-        choices=EventStats.PERIOD_CHOICES,
-        label='Период'
+        choices=PERIOD_CHOICES,
+        label='Период',
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
     
     date_range = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        }),
         required=False,
-        label='Конкретная дата (для недели/месяца)'
+        label='Конкретная дата'
     )

@@ -12,8 +12,36 @@
         <div class="card-body">
             <form method="get">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Применить</button>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.analysis_type.label_tag }}
+                        {{ form.analysis_type }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.period.label_tag }}
+                        {{ form.period }}
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6" id="div_id_activity_type">
+                        {{ form.activity_type.label_tag }}
+                        {{ form.activity_type }}
+                    </div>
+                    <div class="col-md-6" id="div_id_event_type">
+                        {{ form.event_type.label_tag }}
+                        {{ form.event_type }}
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        {{ form.date_range.label_tag }}
+                        {{ form.date_range }}
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary mt-3">Применить</button>
             </form>
         </div>
     </div>
@@ -62,4 +90,34 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    #div_id_activity_type, #div_id_event_type {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateFormFields() {
+const analysisType = document.getElementById('id_analysis_type').value;
+const activityField = document.getElementById('div_id_activity_type');
+const typeField = document.getElementById('div_id_event_type');
+
+if (analysisType === 'activity') {
+    activityField.style.display = 'block';
+    typeField.style.display = 'none';
+} else if (analysisType === 'type') {
+    activityField.style.display = 'none';
+    typeField.style.display = 'block';
+}
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+updateFormFields();
+});
+</script>
 {% endblock %}
