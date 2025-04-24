@@ -59,6 +59,13 @@
                                         <i class="bi bi-gear me-2"></i> Настройки
                                     </a>
                                 </li>
+                                {% if user.is_admin %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'analytics:welcome' %}">
+                                            <i class="bi bi-clipboard-data"></i> Аналитика
+                                        </a>
+                                    </li>
+                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item text-danger" href="{% url 'users:logout' %}">

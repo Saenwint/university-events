@@ -1,0 +1,123 @@
+{% extends 'analytics/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Анализ посещаемости мероприятий</h2>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Фильтры анализа</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_analysis_type">Тип анализа</label>
+                            <select name="analysis_type" class="form-control" id="id_analysis_type" onchange="updateFormFields()">
+                                <option value="activity" {% if form.analysis_type.value == 'activity' %}selected{% endif %}>По виду деятельности</option>
+                                <option value="type" {% if form.analysis_type.value == 'type' %}selected{% endif %}>По типу мероприятия</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_period">Период</label>
+                            <select name="period" class="form-control" id="id_period">
+                                <option value="week" {% if form.period.value == 'week' %}selected{% endif %}>Неделя</option>
+                                <option value="month" {% if form.period.value == 'month' %}selected{% endif %}>Месяц</option>
+                                <option value="year" {% if form.period.value == 'year' %}selected{% endif %}>Год</option>
+                                <option value="all" {% if form.period.value == 'all' %}selected{% endif %}>Весь период</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6" id="div_id_activity_type" {% if form.analysis_type.value != 'activity' %}style="display: none;"{% endif %}>
+                        <div class="form-group">
+                            <label for="id_activity_type">Вид деятельности</label>
+                            <select name="activity_type" class="form-control" id="id_activity_type">
+                                <option value="">Все виды деятельности</option>
+                                {% for value, label in form.fields.activity_type.choices %}
+                                    {% if value %}
+                                        <option value="{{ value }}" {% if form.activity_type.value == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6" id="div_id_event_type" {% if form.analysis_type.value != 'type' %}style="display: none;"{% endif %}>
+                        <div class="form-group">
+                            <label for="id_event_type">Тип мероприятия</label>
+                            <select name="event_type" class="form-control" id="id_event_type">
+                                <option value="">Все типы мероприятий</option>
+                                {% for value, label in form.fields.event_type.choices %}
+                                    {% if value %}
+                                        <option value="{{ value }}" {% if form.event_type.value == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary mt-3">Сгенерировать отчет</button>
+            </form>
+        </div>
+    </div>
+    
+    {% if no_events %}
+    <div class="alert alert-warning mt-4">
+        По выбранным фильтрам мероприятий не найдено. Попробуйте изменить параметры фильтрации.
+    </div>
+    {% endif %}
+    
+    {% if error %}
+    <div class="alert alert-danger mt-4">
+        Ошибка при генерации отчета: {{ error }}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table-responsive {
+        overflow-x: auto;
+    }
+    .alert {
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateFormFields() {
+    const analysisType = document.getElementById('id_analysis_type').value;
+    const activityField = document.getElementById('div_id_activity_type');
+    const typeField = document.getElementById('div_id_event_type');
+
+    if (analysisType === 'activity') {
+        activityField.style.display = 'block';
+        typeField.style.display = 'none';
+        document.getElementById('id_event_type').value = '';
+    } else if (analysisType === 'type') {
+        activityField.style.display = 'none';
+        typeField.style.display = 'block';
+        document.getElementById('id_activity_type').value = '';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация полей при загрузке
+    updateFormFields();
+    
+    // Обработчик изменения типа анализа
+    document.getElementById('id_analysis_type').addEventListener('change', updateFormFields);
+});
+</script>
+{% endblock %}

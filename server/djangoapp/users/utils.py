@@ -26,4 +26,5 @@ def send_confirmation_email(request, user):
         settings.DEFAULT_FROM_EMAIL,
         [user.email],
     )
+    email.content_subtype = "html"
     return email.send(fail_silently=False)
