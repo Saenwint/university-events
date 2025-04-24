@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.utils import timezone
 
 
 class Event(models.Model):
@@ -76,6 +77,12 @@ class Event(models.Model):
         verbose_name = 'Мероприятие'
         verbose_name_plural = 'Мероприятия'
         ordering = ['-date']
+
+    def get_status(self):
+        """Определяет статус мероприятия."""
+        if timezone.now() > self.date:
+            return "Проведено"
+        return "Ожидается"
 
     def get_significance_color(self):
         colors = {
