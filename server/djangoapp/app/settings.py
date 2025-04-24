@@ -91,6 +91,7 @@ MIDDLEWARE = [
 ]
 
 ADMIN_LIST = ast.literal_eval(os.getenv('ADMIN_LIST', '[]'))
+ADMIN_PASS = os.getenv('ADMIN_PASS')
 ROOT_URLCONF = 'app.urls'
 
 TEMPLATES = [

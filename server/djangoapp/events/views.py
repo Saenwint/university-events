@@ -1,11 +1,8 @@
-import base64
 from django.views import View
 from django.utils import timezone
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
 from django.contrib import messages
-from django.shortcuts import redirect
 
 from tickets.models import Ticket
 from events.utils import send_ticket_email
@@ -41,7 +38,7 @@ class EventDetailView(View):
         event = get_object_or_404(Event, id=id)
         return render(request, self.template_name, {'event': event})
     
-
+# TODO: убрать возможность регистрации на мероприятие, если прошло date+4 часа
 class RegisterForEventView(LoginRequiredMixin, View):
     login_url = '/users/login/'
 

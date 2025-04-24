@@ -1,63 +1,143 @@
+import os
+import secrets
+from django.db import connection
 from django.core.management.base import BaseCommand
-from django.utils import timezone
-from datetime import timedelta
-import random
-from events.models import Event
+from django.conf import settings
+from faker import Faker
+from datetime import datetime, timedelta
+
 from tickets.models import Ticket
-from users.models import User
+from events.models import Event
+from users.models import User 
+
+
+def reset_autoincrement(model):
+    with connection.cursor() as cursor:
+        table_name = model._meta.db_table
+        cursor.execute(f"ALTER SEQUENCE {table_name}_id_seq RESTART WITH 1;")
 
 class Command(BaseCommand):
-    help = 'Generates test data for events and statistics'
+    help = 'Fill the database with initial users data'
 
     def handle(self, *args, **options):
-        # Создаем тестовых пользователей
-        users = []
-        for i in range(1, 21):
-            user = User.objects.create(
-                first_name=f'User{i}',
-                last_name=f'Test{i}',
-                email=f'user{i}@test.com',
-                is_confirmed=True
-            )
-            users.append(user)
-            self.stdout.write(self.style.SUCCESS(f'Created user: {user.email}'))
-
-        # Создаем прошедшие мероприятия с разными типами деятельности
-        past_events = []
-        activity_types = [choice[0] for choice in Event.ACTIVITY_TYPES]
+        reset_autoincrement(User)
+        fake = Faker('ru_RU')
         
-        for i, activity_type in enumerate(activity_types[:5]):  # Создаем 5 мероприятий
-            event = Event.objects.create(
-                title=f'Прошедшее мероприятие {i+1} ({activity_type})',
-                short_description=f'Тестовое мероприятие {i+1}',
-                full_description='Полное описание тестового мероприятия',
-                target_audience='Студенты',
-                date=timezone.now() - timedelta(days=random.randint(1, 30)),
-                location='Аудитория 101',
-                coins_reward=random.randint(10, 50),
-                type=random.choice([choice[0] for choice in Event.EVENT_TYPES]),
-                significance_level=random.choice(['normal', 'epic', 'legendary']),
-                organizer='Тестовая организация',
-                activity_type=activity_type
+        admin_data = settings.ADMIN_LIST[0]
+        if not User.objects.filter(email=admin_data).exists():
+            User.objects.create_superuser(
+                email=admin_data,
+                password=settings.ADMIN_PASS,
+                first_name='Александр',
+                last_name='Дудин',
+                is_admin=True,
+                is_staff=True,
+                is_confirmed=True,
+                is_active=True
             )
-            past_events.append(event)
-            self.stdout.write(self.style.SUCCESS(f'Created past event: {event.title}'))
-
-        # Создаем билеты и статистику для прошедших мероприятий
-        for event in past_events:
-            # Случайное количество регистраций (10-20)
-            num_registrations = random.randint(10, 20)
-            registered_users = random.sample(users, num_registrations)
+            self.stdout.write(self.style.SUCCESS(f'Created admin: {admin_data}'))
+        
+        for i in range(30):
+            first_name = fake.first_name()
+            last_name = fake.last_name()
+            email = f'user{i}@example.com'
             
-            # Создаем билеты
-            for user in registered_users:
-                ticket = Ticket.objects.create(
+            if not User.objects.filter(email=email).exists():
+                User.objects.create_user(
+                    email=email,
+                    password='defaultpassword',
+                    first_name=first_name,
+                    last_name=last_name,
+                    is_admin=False,
+                    is_staff=False,
+                    is_confirmed=True,
+                    is_active=True
+                )
+        
+        self.stdout.write(self.style.SUCCESS('Successfully filled the database with users'))
+
+        reset_autoincrement(Event)
+        fake = Faker('ru_RU')
+        
+        images_dir = os.path.join(settings.BASE_DIR, 'analytics', 'management', 'commands', 'media', 'events')
+        
+        if not os.path.exists(images_dir):
+            self.stdout.write(self.style.ERROR(f'Directory {images_dir} does not exist'))
+            return
+        
+        image_files = [f for f in os.listdir(images_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+        
+        if not image_files:
+            self.stdout.write(self.style.ERROR('No image files found in the directory'))
+            return
+        
+        for i in range(10):
+            image_file = image_files[i % len(image_files)]
+            image_path = os.path.join(images_dir, image_file)
+            
+            event = Event(
+                title=fake.sentence(nb_words=4),
+                short_description=fake.text(max_nb_chars=300),
+                full_description=fake.text(max_nb_chars=1000),
+                target_audience="Студенты, преподаватели",
+                date=datetime.now() + timedelta(days=(i*3) - 9),
+                location=fake.address(),
+                coins_reward=fake.random_int(min=0, max=10),
+                type=fake.random_element(Event.EVENT_TYPES)[0],
+                significance_level=fake.random_element(Event.SIGNIFICANCE_LEVELS)[0],
+                organizer=fake.company(),
+                activity_type=fake.random_element(Event.ACTIVITY_TYPES)[0],
+            )
+            
+            with open(image_path, 'rb') as img:
+                event.image.save(image_file, img, save=True)
+            
+            self.stdout.write(self.style.SUCCESS(f'Created event: {event.title} with image {image_file}'))
+        
+        self.stdout.write(self.style.SUCCESS('Successfully created events with images'))
+
+        reset_autoincrement(Ticket)
+        event_ids = range(1, 10)
+        user_ids = range(1, 30)
+        
+        created_count = 0
+        
+        for user_id in user_ids:
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                self.stdout.write(self.style.WARNING(f'User with id {user_id} does not exist'))
+                continue
+                
+            # Выбираем 5 случайных мероприятий для пользователя
+            selected_events = Event.objects.filter(id__in=event_ids).order_by('?')[:5]
+            
+            if not selected_events:
+                self.stdout.write(self.style.WARNING('No events found in specified range'))
+                continue
+                
+            for i, event in enumerate(selected_events):
+                # Для первых 2 билетов устанавливаем is_used=True
+                is_used = i < 2
+                used_at = datetime.now() - timedelta(days=1) if is_used else None
+                
+                ticket = Ticket(
                     user=user,
                     event=event,
-                    is_used=random.choice([True, False])  # Примерно 50% посетили
+                    is_used=is_used,
+                    used_at=used_at,
+                    # qr_code_image останется None (не создаем)
                 )
-                if ticket.is_used:
-                    ticket.mark_as_used()  # Обновляем статистику использования
-            
-
-        self.stdout.write(self.style.SUCCESS('Successfully generated test data'))
+                
+                # Генерируем unique_code перед сохранением
+                ticket.unique_code = f"EV-{event.id}-US-{user.id}-{secrets.token_urlsafe(8)}"
+                ticket.save()
+                created_count += 1
+                
+                self.stdout.write(self.style.SUCCESS(
+                    f'Created ticket for user {user.id} on event {event.id} (used: {is_used})'
+                ))
+        
+        self.stdout.write(self.style.SUCCESS(
+            f'Successfully created {created_count} tickets for {len(user_ids)} users'
+        ))

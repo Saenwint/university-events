@@ -1,17 +1,17 @@
+import os
 from django.template.loader import render_to_string
 from django.shortcuts import redirect
-import os
 from django.conf import settings
 from django.utils import timezone
 from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from datetime import timedelta
 from django.views.generic import (
     TemplateView, 
     ListView, 
     FormView,
     DetailView
 )
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from datetime import timedelta
 
 from analytics.forms import EventFilterForm, AttendanceAnalysisForm
 from events.models import Event
@@ -19,6 +19,7 @@ from events.models import Event
 
 class AnalyticsWelcomeView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'analytics/welcome.html'
+    login_url = '/users/login/'
     
     def test_func(self):
         return self.request.user.is_admin
@@ -28,6 +29,7 @@ class AnalyticsEventsListView(LoginRequiredMixin, UserPassesTestMixin, ListView)
     model = Event
     template_name = 'analytics/analytics_events/analytics_events_list.html'
     context_object_name = 'events'
+    login_url = '/users/login/'
 
     def test_func(self):
         return self.request.user.is_admin
@@ -69,6 +71,7 @@ class AnalyticsEventView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = 'analytics/analytics_events/analytics_event_detail.html'
     context_object_name = 'event'
     pk_url_kwarg = 'event_id'
+    login_url = '/users/login/'
 
     def test_func(self):
         return self.request.user.is_admin
@@ -102,6 +105,7 @@ class AnalyticsEventView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 class AttendanceAnalysisView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = 'analytics/analytics_events/attendance_analysis.html'
     form_class = AttendanceAnalysisForm
+    login_url = '/users/login/'
 
     def test_func(self):
         return self.request.user.is_admin
@@ -136,7 +140,6 @@ class AttendanceAnalysisView(LoginRequiredMixin, UserPassesTestMixin, FormView):
                 
                 events = events.filter(date__gte=start_date)
             
-            # Если нет мероприятий
             if not events.exists():
                 return self.render_to_response(
                     self.get_context_data(
@@ -146,7 +149,6 @@ class AttendanceAnalysisView(LoginRequiredMixin, UserPassesTestMixin, FormView):
                     )
                 )
             
-            # Подготовка данных для отображения фильтров
             activity_choices = dict(form.fields['activity_type'].choices)
             event_type_choices = dict(form.fields['event_type'].choices)
             period_choices = dict(form.fields['period'].choices)
@@ -178,7 +180,6 @@ class AttendanceAnalysisView(LoginRequiredMixin, UserPassesTestMixin, FormView):
                     'percentage': percentage
                 })
             
-            # Генерация HTML-отчета
             report_dir = os.path.join(settings.MEDIA_ROOT, 'reports')
             os.makedirs(report_dir, exist_ok=True)
             report_filename = f"attendance_report_{now.strftime('%Y%m%d_%H%M%S')}.html"
