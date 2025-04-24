@@ -1,8 +1,8 @@
 import secrets
-import base64
 from io import BytesIO
 from django.db import models
 from django.utils import timezone
+from datetime import timedelta
 
 from events.models import Event
 from users.models import User
@@ -47,6 +47,24 @@ class Ticket(models.Model):
 
     def generate_qr_data(self):
         return f"EVENT:{self.event.id}:USER:{self.user.id}:CODE:{self.unique_code}"
+
+    def is_pending(self):
+        """
+        Проверяет, находится ли билет в статусе "Ожидается".
+        Билет ожидается, если текущее время меньше времени начала мероприятия.
+        """
+        event_time = self.event.date
+        check_time = timezone.now()
+        return check_time < event_time
+
+    def is_expired(self):
+        """
+        Проверяет, просрочен ли билет.
+        Билет считается просроченным, если текущее время больше времени окончания допустимого диапазона.
+        """
+        event_time = self.event.date
+        check_time = timezone.now()
+        return check_time > event_time + timedelta(hours=4)
     
     @staticmethod
     def generate_qr_image(data):
