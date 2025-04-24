@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.utils import timezone
+from datetime import timedelta
 
 
 class Event(models.Model):
@@ -80,7 +81,9 @@ class Event(models.Model):
 
     def get_status(self):
         """Определяет статус мероприятия."""
-        if timezone.now() > self.date:
+        event_time = self.date
+        check_time = timezone.now()
+        if check_time > event_time + timedelta(hours=4):
             return "Проведено"
         return "Ожидается"
 

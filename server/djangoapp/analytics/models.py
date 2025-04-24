@@ -4,39 +4,42 @@ from events.models import Event
 
 
 class EventStats(models.Model):
-    PERIOD_CHOICES = [
-        ('week', 'Неделя'),
-        ('month', 'Месяц'),
-        ('year', 'Год'),
-        ('all', 'Весь период'),
-    ]
-    
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='stats')
-    period = models.CharField(max_length=10, choices=PERIOD_CHOICES, default='all')
+    event = models.OneToOneField(
+        Event, 
+        on_delete=models.CASCADE,
+        related_name='stats',
+        primary_key=True
+    )
     total_registered = models.PositiveIntegerField(default=0)
     total_attended = models.PositiveIntegerField(default=0)
-    calculation_date = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        verbose_name = 'Статистика мероприятия'
-        verbose_name_plural = 'Статистика мероприятий'
-        ordering = ['-calculation_date']
-    
-    def __str__(self):
-        return f"Статистика {self.event.title} за {self.get_period_display()}"
-
-    def update_stats(self):
-        """Обновляет статистику мероприятия"""
-        self.total_registered = self.event.registrations.count()
-        self.total_attended = self.event.registrations.filter(is_used=True).count()
-        self.save()
-        return self
+    calculated_at = models.DateTimeField(auto_now=True)
 
     @property
-    def attendance_rate(self):
-        return round((self.total_attended / self.total_registered * 100), 2) if self.total_registered > 0 else 0
-    
-    @property
-    def total_missed(self):
-        """Количество не пришедших"""
-        return self.total_registered - self.total_attended
+    def attendance_percentage(self):
+        if self.total_registered == 0:
+            return 0
+        return round((self.total_attended / self.total_registered) * 100, 2)
+
+    @classmethod
+    def generate_stats_report(cls, events):
+        report_data = {
+            'total_events': events.count(),
+            'events': []
+        }
+        
+        for event in events:
+            registered = event.registrations.count()
+            attended = event.registrations.filter(is_used=True).count()
+            percentage = round((attended / registered * 100), 2) if registered > 0 else 0
+            
+            report_data['events'].append({
+                'title': event.title,
+                'date': event.date,
+                'type': event.get_type_display(),
+                'activity_type': event.get_activity_type_display(),
+                'registered': registered,
+                'attended': attended,
+                'percentage': percentage
+            })
+        
+        return report_data

@@ -49,44 +49,45 @@
     {% if stats %}
     <div class="card mt-4">
         <div class="card-header">
-            <h4>Результаты анализа</h4>
+            <h4>Результаты анализа (найдено {{ stats|length }} мероприятий)</h4>
         </div>
         <div class="card-body">
-            <p class="lead">
-                Статистика по {{ field_label|lower }} за {{ form.cleaned_data.period|lower }}
-                {% if form.cleaned_data.date_range %}
-                ({{ form.cleaned_data.date_range|date:"d.m.Y" }})
-                {% endif %}
-            </p>
+            <div class="alert alert-info">
+                <strong>Параметры фильтрации:</strong><br>
+                Тип анализа: {{ filters.analysis_type }}<br>
+                Период: {{ filters.period }}<br>
+                {% if filters.activity_type %}Вид деятельности: {{ filters.activity_type }}<br>{% endif %}
+                {% if filters.event_type %}Тип мероприятия: {{ filters.event_type }}<br>{% endif %}
+            </div>
             
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>{{ field_label }}</th>
-                            <th>Количество мероприятий</th>
-                            <th>Всего зарегистрировалось</th>
-                            <th>Всего посетило</th>
-                            <th>Процент посещаемости</th>
+                            <th>Мероприятие</th>
+                            <th>Зарегистрировано</th>
+                            <th>Пришло</th>
+                            <th>Посещаемость</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in stats %}
                         <tr>
-                            <td>{{ item.get_field_display }}</td>
-                            <td>{{ item.total_events }}</td>
-                            <td>{{ item.total_registered|default:0 }}</td>
-                            <td>{{ item.total_attended|default:0 }}</td>
-                            <td>
-                                {% widthratio item.total_attended item.total_registered 100 as attendance %}
-                                {{ attendance|default:0 }}%
-                            </td>
+                            <td>{{ item.event.title }}</td>
+                            <td>{{ item.registered }}</td>
+                            <td>{{ item.attended }}</td>
+                            <td>{{ item.percentage }}%</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        По выбранным фильтрам мероприятий не найдено.
+        {% if filters %}Попробуйте изменить параметры фильтрации.{% endif %}
     </div>
     {% endif %}
 </div>

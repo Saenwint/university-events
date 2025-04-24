@@ -1,14 +1,20 @@
+from django.template.loader import render_to_string
+from django.shortcuts import redirect
+import os
+from django.conf import settings
 from django.utils import timezone
-from django.views.generic import View
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
-from django.views.generic import TemplateView, ListView, FormView
+from django.views.generic import (
+    TemplateView, 
+    ListView, 
+    FormView,
+    View,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Sum, Count
 from datetime import timedelta
 
 from analytics.forms import EventFilterForm, AttendanceAnalysisForm
 from events.models import Event
+from analytics.models import EventStats
 
 
 class AnalyticsWelcomeView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
@@ -28,22 +34,22 @@ class AnalyticsEventsListView(LoginRequiredMixin, UserPassesTestMixin, ListView)
 
     def get_queryset(self):
         queryset = Event.objects.all()
-
         form = EventFilterForm(self.request.GET)
+        
         if form.is_valid():
             event_type = form.cleaned_data.get('type')
             activity_type = form.cleaned_data.get('activity_type')
             status = form.cleaned_data.get('status')
-
+            
             if event_type:
                 queryset = queryset.filter(type=event_type)
             if activity_type:
                 queryset = queryset.filter(activity_type=activity_type)
             if status == "Проведено":
-                queryset = queryset.filter(date__lt=timezone.now())
+                queryset = queryset.filter(date__lt=timezone.now() - timedelta(hours=4))
             elif status == "Ожидается":
-                queryset = queryset.filter(date__gte=timezone.now())
-
+                queryset = queryset.filter(date__gte=timezone.now() - timedelta(hours=4))
+        
         sort_by = self.request.GET.get('sort_by', '-date')
         if sort_by in ['title', '-title', 'date', '-date']:
             queryset = queryset.order_by(sort_by)
@@ -52,98 +58,97 @@ class AnalyticsEventsListView(LoginRequiredMixin, UserPassesTestMixin, ListView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context['form'] = EventFilterForm(self.request.GET or None)
-
         context['sort_by'] = self.request.GET.get('sort_by', '-date')
-
+        context['current_time'] = timezone.now()
         return context
     
 
 class AnalyticsEventView(LoginRequiredMixin, UserPassesTestMixin, View):
-    template_name = 'events/event_analytics.html'
-    login_url = '/users/login/'
-
-    def test_func(self):
-        """Проверка, что пользователь администратор"""
-        return self.request.user.is_admin
-
-    def handle_no_permission(self):
-        """Обработка отсутствия прав"""
-        if not self.request.user.is_authenticated:
-            return super().handle_no_permission()
-        messages.error(self.request, "Доступ к аналитике разрешен только администраторам")
-        return redirect('events:event_list')
-
-    def get(self, request, event_id):
-        event = get_object_or_404(Event, id=event_id)
-        
-        # Получаем статистику по мероприятию
-        tickets = event.registrations.all()
-        expired_tickets = [t for t in tickets if t.is_expired() and not t.is_used]
-        
-        context = {
-            'event': event,
-            'registered_tickets': tickets,
-            'attended_tickets': tickets.filter(is_used=True),
-            'missed_tickets': expired_tickets,
-            'stats': event.stats,
-        }
-        return render(request, self.template_name, context)
+    ...
     
+
 
 class AttendanceAnalysisView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = 'analytics/analytics_events/attendance_analysis.html'
     form_class = AttendanceAnalysisForm
-    
+
     def test_func(self):
         return self.request.user.is_admin
     
     def form_valid(self, form):
-        analysis_type = form.cleaned_data['analysis_type']
-        period = form.cleaned_data['period']
-        date_range = form.cleaned_data['date_range']
+        filters = {
+            'activity_type': form.cleaned_data.get('activity_type'),
+            'event_type': form.cleaned_data.get('event_type'),
+            'period': form.cleaned_data.get('period'),
+        }
         
-        # Определяем временной диапазон
+        # Фильтрация только проведенных мероприятий (+4 часа)
         now = timezone.now()
-        if period == 'week':
-            start_date = now - timedelta(days=7)
-        elif period == 'month':
-            start_date = now - timedelta(days=30)
-        elif period == 'year':
-            start_date = now - timedelta(days=365)
-        else:
-            start_date = None
+        events = Event.objects.filter(date__lt=now - timedelta(hours=4))
         
-        # Фильтруем мероприятия по периоду
-        events = Event.objects.all()
-        if start_date:
+        # Дополнительные фильтры
+        if filters['activity_type']:
+            events = events.filter(activity_type=filters['activity_type'])
+        
+        if filters['event_type']:
+            events = events.filter(type=filters['event_type'])
+        
+        # Фильтр по периоду
+        if filters['period'] != 'all':
+            if filters['period'] == 'week':
+                start_date = now - timedelta(days=7)
+            elif filters['period'] == 'month':
+                start_date = now - timedelta(days=30)
+            elif filters['period'] == 'year':
+                start_date = now - timedelta(days=365)
+            
             events = events.filter(date__range=[start_date, now])
         
-        # Дополнительная фильтрация по выбранному типу
-        if analysis_type == 'activity' and form.cleaned_data['activity_type']:
-            events = events.filter(activity_type=form.cleaned_data['activity_type'])
-        elif analysis_type == 'type' and form.cleaned_data['event_type']:
-            events = events.filter(type=form.cleaned_data['event_type'])
+        # Если нет мероприятий - показываем сообщение
+        if not events.exists():
+            return self.render_to_response(self.get_context_data(
+                form=form,
+                stats=None,
+                filters=filters
+            ))
         
-        # Группируем по выбранному типу анализа
-        field = 'activity_type' if analysis_type == 'activity' else 'type'
-        label = 'Вид деятельности' if analysis_type == 'activity' else 'Тип мероприятия'
+        # Генерация отчета
+        report_data = {
+            'total_events': events.count(),
+            'events': [],
+            'filters': filters,
+            'generated_at': now
+        }
         
-        stats = events.values(field).annotate(
-            total_events=Count('id'),
-            total_registered=Sum('stats__total_registered'),
-            total_attended=Sum('stats__total_attended')
-        ).order_by(field)
+        for event in events:
+            registered = event.registrations.count()
+            attended = event.registrations.filter(is_used=True).count()
+            percentage = round((attended / registered * 100), 2) if registered > 0 else 0
+            
+            report_data['events'].append({
+                'title': event.title,
+                'date': event.date,
+                'type': event.get_type_display(),
+                'activity_type': event.get_activity_type_display(),
+                'registered': registered,
+                'attended': attended,
+                'percentage': percentage
+            })
         
-        context = self.get_context_data(
-            form=form,
-            stats=stats,
-            analysis_type=analysis_type,
-            period=period,
-            date_range=date_range,
-            field_label=label,
-            field_name=field
+        # Сохранение отчета
+        report_dir = os.path.join(settings.MEDIA_ROOT, 'reports')
+        os.makedirs(report_dir, exist_ok=True)
+        report_filename = f"attendance_report_{now.strftime('%Y%m%d_%H%M%S')}.html"
+        report_path = os.path.join(report_dir, report_filename)
+        
+        html_content = render_to_string(
+            'analytics/analytics_events/attendance_report.html',
+            {'report': report_data}
         )
         
-        return self.render_to_response(context)
+        with open(report_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        
+        # Перенаправление на отчет
+        return redirect(f"{settings.MEDIA_URL}reports/{report_filename}")

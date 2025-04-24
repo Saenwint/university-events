@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчет о посещаемости мероприятий</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .info { margin-bottom: 20px; }
+        .download-btn { 
+            display: inline-block; 
+            padding: 10px 15px; 
+            background: #4CAF50; 
+            color: white; 
+            text-decoration: none; 
+            margin-top: 20px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Отчет о посещаемости мероприятий</h1>
+    
+    <div class="info">
+        <p><strong>Дата генерации:</strong> {{ report.generated_at|date:"d.m.Y H:i" }}</p>
+        <p><strong>Всего мероприятий:</strong> {{ report.total_events }}</p>
+        {% if report.filters.activity_type %}
+        <p><strong>Вид деятельности:</strong> {{ report.filters.get_activity_type_display }}</p>
+        {% endif %}
+        {% if report.filters.event_type %}
+        <p><strong>Тип мероприятия:</strong> {{ report.filters.get_event_type_display }}</p>
+        {% endif %}
+        <p><strong>Период:</strong> {{ report.filters.get_period_display }}</p>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Мероприятие</th>
+                <th>Дата</th>
+                <th>Тип</th>
+                <th>Вид деятельности</th>
+                <th>Зарегистрировано</th>
+                <th>Пришло</th>
+                <th>Посещаемость</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in report.events %}
+            <tr>
+                <td>{{ event.title }}</td>
+                <td>{{ event.date|date:"d.m.Y H:i" }}</td>
+                <td>{{ event.type }}</td>
+                <td>{{ event.activity_type }}</td>
+                <td>{{ event.registered }}</td>
+                <td>{{ event.attended }}</td>
+                <td>{{ event.percentage }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <a href="{{ request.path }}?download=1" class="download-btn">Скачать HTML</a>
+</body>
+</html>
