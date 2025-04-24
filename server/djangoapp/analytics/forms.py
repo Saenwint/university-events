@@ -1,5 +1,6 @@
 from django import forms
 
+from analytics.models import EventStats
 from events.models import Event
 
 
@@ -22,4 +23,27 @@ class EventFilterForm(forms.Form):
         ],
         required=False,
         label='Статус'
+    )
+
+
+class AttendanceAnalysisForm(forms.Form):
+    ANALYSIS_TYPE_CHOICES = [
+        ('activity', 'По виду деятельности'),
+        ('type', 'По типу мероприятия'),
+    ]
+    
+    analysis_type = forms.ChoiceField(
+        choices=ANALYSIS_TYPE_CHOICES,
+        label='Тип анализа'
+    )
+    
+    period = forms.ChoiceField(
+        choices=EventStats.PERIOD_CHOICES,
+        label='Период'
+    )
+    
+    date_range = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=False,
+        label='Конкретная дата (для недели/месяца)'
     )

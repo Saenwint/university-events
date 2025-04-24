@@ -1,0 +1,65 @@
+{% extends 'analytics/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Анализ посещаемости мероприятий</h2>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Фильтры анализа</h4>
+        </div>
+        <div class="card-body">
+            <form method="get">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Применить</button>
+            </form>
+        </div>
+    </div>
+    
+    {% if stats %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Результаты анализа</h4>
+        </div>
+        <div class="card-body">
+            <p class="lead">
+                Статистика по {{ field_label|lower }} за {{ form.cleaned_data.period|lower }}
+                {% if form.cleaned_data.date_range %}
+                ({{ form.cleaned_data.date_range|date:"d.m.Y" }})
+                {% endif %}
+            </p>
+            
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{ field_label }}</th>
+                            <th>Количество мероприятий</th>
+                            <th>Всего зарегистрировалось</th>
+                            <th>Всего посетило</th>
+                            <th>Процент посещаемости</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in stats %}
+                        <tr>
+                            <td>{{ item.get_field_display }}</td>
+                            <td>{{ item.total_events }}</td>
+                            <td>{{ item.total_registered|default:0 }}</td>
+                            <td>{{ item.total_attended|default:0 }}</td>
+                            <td>
+                                {% widthratio item.total_attended item.total_registered 100 as attendance %}
+                                {{ attendance|default:0 }}%
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
