@@ -1,6 +1,5 @@
 from django import forms
 
-from analytics.models import EventStats
 from events.models import Event
 
 

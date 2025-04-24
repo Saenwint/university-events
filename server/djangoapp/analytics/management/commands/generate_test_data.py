@@ -3,7 +3,6 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 from events.models import Event
-from analytics.models import EventStats
 from tickets.models import Ticket
 from users.models import User
 
@@ -60,16 +59,5 @@ class Command(BaseCommand):
                 if ticket.is_used:
                     ticket.mark_as_used()  # Обновляем статистику использования
             
-            # Создаем статистику мероприятия
-            stats = EventStats.objects.create(
-                event=event,
-                period='all',
-                total_registered=num_registrations,
-                total_attended=Ticket.objects.filter(event=event, is_used=True).count()
-            )
-            self.stdout.write(self.style.SUCCESS(
-                f'Stats for {event.title}: '
-                f'{stats.total_attended}/{stats.total_registered} attended'
-            ))
 
         self.stdout.write(self.style.SUCCESS('Successfully generated test data'))
