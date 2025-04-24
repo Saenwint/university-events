@@ -3,11 +3,12 @@ from django.shortcuts import redirect
 import os
 from django.conf import settings
 from django.utils import timezone
+from django.urls import reverse
 from django.views.generic import (
     TemplateView, 
     ListView, 
     FormView,
-    View,
+    DetailView
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from datetime import timedelta
@@ -63,12 +64,39 @@ class AnalyticsEventsListView(LoginRequiredMixin, UserPassesTestMixin, ListView)
         return context
     
 
-class AnalyticsEventView(LoginRequiredMixin, UserPassesTestMixin, View):
-    template_name = 'analytics/analytics_events/analytics_event_details.html'
-    form_class = AttendanceAnalysisForm
+class AnalyticsEventView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Event
+    template_name = 'analytics/analytics_events/analytics_event_detail.html'
+    context_object_name = 'event'
+    pk_url_kwarg = 'event_id'
 
     def test_func(self):
         return self.request.user.is_admin
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        event = self.get_object()
+        
+        is_past_event = event.date < timezone.now() - timedelta(hours=4)
+        registered = event.registrations.count()
+        attended = event.registrations.filter(is_used=True).count()
+        percentage = round((attended / registered * 100), 2) if registered > 0 else 0
+        
+        context['report'] = {
+            'title': event.title,
+            'date': event.date,
+            'type': event.get_type_display(),
+            'activity_type': event.get_activity_type_display(),
+            'registered': registered,
+            'attended': attended,
+            'percentage': percentage,
+            'is_past_event': is_past_event,
+            'event_url': reverse('events:event_detail', kwargs={'id': event.id}),
+            'registrations': event.registrations.select_related('user').all(),
+            'generated_at': timezone.now()
+        }
+        
+        return context
     
 
 class AttendanceAnalysisView(LoginRequiredMixin, UserPassesTestMixin, FormView):

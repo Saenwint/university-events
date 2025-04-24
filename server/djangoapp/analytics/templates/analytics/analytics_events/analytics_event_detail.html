@@ -1,0 +1,122 @@
+{% extends 'analytics/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<!-- Здесь только стили для аналитики -->
+<link href="{% static 'analytics/css/analytics.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Аналитика мероприятия: {{ report.title }}</h2>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Основная информация</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Тип:</strong> {{ report.type }}</p>
+                    <p><strong>Вид деятельности:</strong> {{ report.activity_type }}</p>
+                    <p><strong>Дата проведения:</strong> {{ report.date|date:"d.m.Y H:i" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Статус:</strong> {% if report.is_past_event %}Проведено{% else %}Ожидается{% endif %}</p>
+                    <p><strong>Зарегистрировано участников:</strong> {{ report.registered }}</p>
+                    {% if report.is_past_event %}
+                    <p><strong>Приняло участие:</strong> {{ report.attended }} ({{ report.percentage }}%)</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <a href="{{ report.event_url }}" class="btn btn-primary mt-3">Перейти к мероприятию</a>
+        </div>
+    </div>
+    
+    {% if not report.is_past_event %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Список зарегистрированных участников ({{ report.registrations.count }})</h4>
+        </div>
+        <div class="card-body">
+            {% if report.registrations %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ФИО</th>
+                            <th>Email</th>
+                            <th>Дата регистрации</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in report.registrations %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ reg.user.get_full_name }}</td>
+                            <td>{{ reg.user.email }}</td>
+                            <td>{{ reg.registration_date|date:"d.m.Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                Нет зарегистрированных участников
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Статистика посещаемости</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Мероприятие</th>
+                                    <th>Дата</th>
+                                    <th>Тип</th>
+                                    <th>Вид деятельности</th>
+                                    <th>Зарегистрировано</th>
+                                    <th>Пришло</th>
+                                    <th>Посещаемость</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ report.title }}</td>
+                                    <td>{{ report.date|date:"d.m.Y H:i" }}</td>
+                                    <td>{{ report.type }}</td>
+                                    <td>{{ report.activity_type }}</td>
+                                    <td>{{ report.registered }}</td>
+                                    <td>{{ report.attended }}</td>
+                                    <td>{{ report.percentage }}%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <div class="alert alert-info">
+                    <h5>Итоги мероприятия</h5>
+                    <p>Посещаемость: <strong>{{ report.percentage }}%</strong></p>
+                    <p>Зарегистрировано: <strong>{{ report.registered }}</strong></p>
+                    <p>Приняло участие: <strong>{{ report.attended }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
